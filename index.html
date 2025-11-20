@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>웻수트 컬러 시뮬레이션</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .viewer {
+      flex: 1 1 500px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 420px;
+    }
+    .viewer object {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+      border: none;
+    }
+    .controls {
+      flex: 0 0 260px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding: 16px 16px 12px;
+      font-size: 13px;
+    }
+    .group {
+      margin-bottom: 14px;
+    }
+    .group-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .color-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .color-btn {
+      min-width: 75px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+    }
+    .color-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-right: 6px;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #999;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>기성 디그니티 후드 투피스 - 컬러 시뮬레이션</h1>
+    <div class="subtitle">
+      ※ 모든 부위는 블랙 / 진그레이 / 메탈 / 연블루 4색만 선택 가능
+    </div>
+
+    <div class="layout">
+      <!-- SVG 영역 -->
+      <div class="viewer">
+        <object id="wetsuitSvg" type="image/svg+xml" data="wetsuit.svg"></object>
+      </div>
+
+      <!-- 컨트롤 영역 -->
+      <div class="controls">
+
+        <!-- 색상 버튼 UI 한번만 정의하기 -->
+        <script>
+          const COLOR_OPTIONS = [
+            { name: "블랙", code: "#000000" },
+            { name: "진그레이", code: "#333333" },
+            { name: "메탈", code: "#8e8e8e" },
+            { name: "연블루", code: "#87a6d8" }
+          ];
+        </script>
+
+        <!-- 부위별 UI -->
+        <div class="group">
+          <div class="group-title">상의 메인 (.st7)</div>
+          <div class="color-row" id="topMainBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">상의 서브 (.st8)</div>
+          <div class="color-row" id="topSubBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">상·하 연결 (.st9)</div>
+          <div class="color-row" id="connectorBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">팔 (.st6)</div>
+          <div class="color-row" id="armBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">팔 완장 (.st10)</div>
+          <div class="color-row" id="armBandBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">후드 (.st12)</div>
+          <div class="color-row" id="hoodBtns"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">하의 메인 (.st5)</div>
+          <div class="color-row" id="bottomMainBtns"></div>
+        </div>
+
+        <div class="footer">
+          © 컬러 테스트 4색 전용
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 각 부위 → SVG 클래스 매핑
+    const PARTS = {
+      topMain: ".st7",
+      topSub: ".st8",
+      connector: ".st9",
+      arm: ".st6",
+      armBand: ".st10",
+      hood: ".st12",
+      bottomMain: ".st5"
+    };
+
+    // 버튼 생성 함수
+    function createButtons(wrapperId, partKey) {
+      const wrapper = document.getElementById(wrapperId);
+      COLOR_OPTIONS.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "color-btn";
+        btn.dataset.target = partKey;
+        btn.dataset.color = opt.code;
+        btn.innerHTML = `<span class="color-swatch" style="background:${opt.code}"></span>${opt.name}`;
+        wrapper.appendChild(btn);
+      });
+    }
+
+    // UI 버튼 초기 생성
+    createButtons("topMainBtns", "topMain");
+    createButtons("topSubBtns", "topSub");
+    createButtons("connectorBtns", "connector");
+    createButtons("armBtns", "arm");
+    createButtons("armBandBtns", "armBand");
+    createButtons("hoodBtns", "hood");
+    createButtons("bottomMainBtns", "bottomMain");
+
+    // SVG 로드 후 이벤트 연결
+    const svgObject = document.getElementById("wetsuitSvg");
+
+    svgObject.addEventListener("load", () => {
+      const svgDoc = svgObject.contentDocument;
+
+      const buttons = document.querySelectorAll(".color-btn");
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const part = btn.dataset.target;
+          const color = btn.dataset.color;
+          const selector = PARTS[part];
+          const targets = svgDoc.querySelectorAll(selector);
+
+          targets.forEach(el => el.setAttribute("fill", color));
+        });
+      });
+    });
+  </script>
+</body>
+</html>
