@@ -3,9 +3,7 @@
   <!-- Generator: Adobe Illustrator 29.8.3, SVG Export Plug-In . SVG Version: 2.1.1 Build 3)  -->
   <defs>
     <style>
-      .st0, .st1 {
-        stroke-miterlimit: 10;
-      }
+      .st0, .st1 {        stroke-miterlimit: 10;      }
 
       .st0, .st1, .st2, .st3 {
         fill: none;
