@@ -151,21 +151,21 @@
 <script>
   // 4가지 색상
   const COLORS = [
-    { name: "블랙", code: "#000000" },
+    { name: "블랙",    code: "#000000" },
     { name: "진그레이", code: "#333333" },
-    { name: "메탈", code: "#8e8e8e" },
-    { name: "연블루", code: "#87a6d8" }
+    { name: "메탈",    code: "#8e8e8e" },
+    { name: "연블루",   code: "#87a6d8" }
   ];
 
   // 부위와 SVG 클래스 매핑
   const PARTS = {
-    topMain: ".st7",
-    topSub: ".st8",
-    connector: ".st9",
-    arm: ".st6",
-    armBand: ".st10",
-    hood: ".st12",
-    bottomMain: ".st5"
+    topMain:   ".st7",   // 상의 메인 (파란색)
+    topSub:    ".st8",   // 상의 서브 (주황)
+    connector: ".st9",   // 상·하 연결 (보라)
+    arm:       ".st6",   // 팔 (빨강)
+    armBand:   ".st10",  // 팔 완장 (분홍)
+    hood:      ".st12",  // 후드 (노랑)
+    bottomMain: ".st5"   // 하의 메인 (초록)
   };
 
   // 버튼 UI 자동 생성
@@ -176,18 +176,29 @@
       btn.className = "color-btn";
       btn.dataset.target = partId;
       btn.dataset.color = c.code;
-      btn.innerHTML = `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
+      btn.innerHTML =
+        `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
       wrap.appendChild(btn);
     });
   }
 
   Object.keys(PARTS).forEach(id => makeButtons(id));
 
-  // SVG 준비되면 이벤트 연결
+  // SVG 문서 가져오기
+  function getSvgDoc() {
+    const obj = document.getElementById("wetsuitSvg");
+    if (!obj) return null;
+    if (obj.contentDocument) return obj.contentDocument;
+    if (obj.getSVGDocument) return obj.getSVGDocument();  // ← 여기!! 함수 호출
+    return null;
+  }
+
   function initSvgInteraction() {
-    const svgObject = document.getElementById("wetsuitSvg");
-    const svgDoc = svgObject.contentDocument || svgObject.getSVGDocument();
-    if (!svgDoc) return;
+    const svgDoc = getSvgDoc();
+    if (!svgDoc) {
+      console.warn("SVG 문서를 아직 못 찾았어요.");
+      return;
+    }
 
     const buttons = document.querySelectorAll(".color-btn");
 
@@ -203,19 +214,20 @@
     });
   }
 
-  // 페이지가 다 로드된 후 SVG 상태에 맞춰 init 실행
+  // 페이지 로드 후 / SVG 로드 후 둘 다 대비
   window.addEventListener("load", () => {
-    const svgObject = document.getElementById("wetsuitSvg");
+    const obj = document.getElementById("wetsuitSvg");
 
-    // 이미 로드가 끝난 경우
-    if (svgObject.contentDocument || svgObject.getSVGDocument) {
-      initSvgInteraction();
+    // 혹시 이미 로드가 끝났으면 바로 시도
+    initSvgInteraction();
+
+    // 아직이면 load 이벤트에서 다시 시도
+    if (obj) {
+      obj.addEventListener("load", initSvgInteraction);
     }
-
-    // 아직 안 끝났으면 load 이벤트 기다렸다가 실행
-    svgObject.addEventListener("load", initSvgInteraction);
   });
 </script>
+
 
 
 </body>
