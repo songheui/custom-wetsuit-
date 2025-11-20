@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>웻수트 컬러 시뮬레이션</title>
+
   <style>
     body {
       margin: 0;
@@ -78,10 +79,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+      transition: .1s;
     }
     .color-swatch {
-      display: inline-block;
       width: 10px;
       height: 10px;
       border-radius: 999px;
@@ -96,77 +96,68 @@
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <h1>기성 디그니티 후드 투피스 - 컬러 시뮬레이션</h1>
-    <div class="subtitle">
-      ※ 모든 부위는 블랙 / 진그레이 / 메탈 / 연블루 4색만 선택 가능
-    </div>
+    <h1>컬러 시뮬레이션 (4색 전용)</h1>
+    <div class="subtitle">블랙 / 진그레이 / 메탈 / 연블루</div>
 
     <div class="layout">
-      <!-- SVG 영역 -->
       <div class="viewer">
         <object id="wetsuitSvg" type="image/svg+xml" data="wetsuit.svg"></object>
       </div>
 
-      <!-- 컨트롤 영역 -->
       <div class="controls">
 
-        <!-- 색상 버튼 UI 한번만 정의하기 -->
-        <script>
-          const COLOR_OPTIONS = [
-            { name: "블랙", code: "#000000" },
-            { name: "진그레이", code: "#333333" },
-            { name: "메탈", code: "#8e8e8e" },
-            { name: "연블루", code: "#87a6d8" }
-          ];
-        </script>
-
-        <!-- 부위별 UI -->
         <div class="group">
           <div class="group-title">상의 메인 (.st7)</div>
-          <div class="color-row" id="topMainBtns"></div>
+          <div class="color-row" id="topMain"></div>
         </div>
 
         <div class="group">
           <div class="group-title">상의 서브 (.st8)</div>
-          <div class="color-row" id="topSubBtns"></div>
+          <div class="color-row" id="topSub"></div>
         </div>
 
         <div class="group">
           <div class="group-title">상·하 연결 (.st9)</div>
-          <div class="color-row" id="connectorBtns"></div>
+          <div class="color-row" id="connector"></div>
         </div>
 
         <div class="group">
           <div class="group-title">팔 (.st6)</div>
-          <div class="color-row" id="armBtns"></div>
+          <div class="color-row" id="arm"></div>
         </div>
 
         <div class="group">
           <div class="group-title">팔 완장 (.st10)</div>
-          <div class="color-row" id="armBandBtns"></div>
+          <div class="color-row" id="armBand"></div>
         </div>
 
         <div class="group">
           <div class="group-title">후드 (.st12)</div>
-          <div class="color-row" id="hoodBtns"></div>
+          <div class="color-row" id="hood"></div>
         </div>
 
         <div class="group">
           <div class="group-title">하의 메인 (.st5)</div>
-          <div class="color-row" id="bottomMainBtns"></div>
+          <div class="color-row" id="bottomMain"></div>
         </div>
 
-        <div class="footer">
-          © 컬러 테스트 4색 전용
-        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // 각 부위 → SVG 클래스 매핑
+    // 4가지 색상
+    const COLORS = [
+      { name: "블랙", code: "#000000" },
+      { name: "진그레이", code: "#333333" },
+      { name: "메탈", code: "#8e8e8e" },
+      { name: "연블루", code: "#87a6d8" }
+    ];
+
+    // 부위와 SVG 클래스 매핑
     const PARTS = {
       topMain: ".st7",
       topSub: ".st8",
@@ -177,46 +168,38 @@
       bottomMain: ".st5"
     };
 
-    // 버튼 생성 함수
-    function createButtons(wrapperId, partKey) {
-      const wrapper = document.getElementById(wrapperId);
-      COLOR_OPTIONS.forEach(opt => {
+    // 버튼 UI 자동 생성
+    function makeButtons(partId) {
+      const wrap = document.getElementById(partId);
+      COLORS.forEach(c => {
         const btn = document.createElement("button");
         btn.className = "color-btn";
-        btn.dataset.target = partKey;
-        btn.dataset.color = opt.code;
-        btn.innerHTML = `<span class="color-swatch" style="background:${opt.code}"></span>${opt.name}`;
-        wrapper.appendChild(btn);
+        btn.dataset.target = partId;
+        btn.dataset.color = c.code;
+        btn.innerHTML = `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
+        wrap.appendChild(btn);
       });
     }
 
-    // UI 버튼 초기 생성
-    createButtons("topMainBtns", "topMain");
-    createButtons("topSubBtns", "topSub");
-    createButtons("connectorBtns", "connector");
-    createButtons("armBtns", "arm");
-    createButtons("armBandBtns", "armBand");
-    createButtons("hoodBtns", "hood");
-    createButtons("bottomMainBtns", "bottomMain");
+    Object.keys(PARTS).forEach(id => makeButtons(id));
 
-    // SVG 로드 후 이벤트 연결
+    // SVG 컬러 변경
     const svgObject = document.getElementById("wetsuitSvg");
 
     svgObject.addEventListener("load", () => {
-      const svgDoc = svgObject.contentDocument;
+      const svg = svgObject.contentDocument;
 
-      const buttons = document.querySelectorAll(".color-btn");
-      buttons.forEach(btn => {
+      document.querySelectorAll(".color-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const part = btn.dataset.target;
           const color = btn.dataset.color;
-          const selector = PARTS[part];
-          const targets = svgDoc.querySelectorAll(selector);
+          const nodes = svg.querySelectorAll(PARTS[part]);
 
-          targets.forEach(el => el.setAttribute("fill", color));
+          nodes.forEach(n => n.setAttribute("fill", color));
         });
       });
     });
   </script>
+
 </body>
 </html>
