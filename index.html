@@ -103,7 +103,7 @@
     <div class="subtitle">블랙 / 진그레이 / 메탈 / 연블루</div>
 
     <div class="layout">
-      <!-- 도식화 SVG -->
+      <!-- 도식화 SVG (루트의 wetsuit.svg 파일을 읽어옴) -->
       <div class="viewer">
         <object id="wetsuitSvg" type="image/svg+xml" data="wetsuit.svg"></object>
       </div>
@@ -159,9 +159,9 @@
       { name: "연블루",   code: "#87a6d8" }
     ];
 
-    // 부위와 SVG 클래스 매핑
+    // SVG 클래스와 부위 매핑 (지금 wetsuit.svg 기준)
     const PARTS = {
-      topMain:    ".st7",   // 상의 메인 (파란색)
+      topMain:    ".st7",   // 상의 메인 (파랑)
       topSub:     ".st8",   // 상의 서브 (주황)
       connector:  ".st9",   // 상·하 연결 (보라)
       arm:        ".st6",   // 팔 (빨강)
@@ -170,7 +170,7 @@
       bottomMain: ".st5"    // 하의 메인 (초록)
     };
 
-    // 버튼 UI 자동 생성
+    // 버튼 자동 생성
     function makeButtons(partId) {
       const wrap = document.getElementById(partId);
       COLORS.forEach(c => {
@@ -186,7 +186,7 @@
 
     Object.keys(PARTS).forEach(id => makeButtons(id));
 
-    // SVG 문서 가져오기
+    // SVG 문서 얻기
     function getSvgDoc() {
       const obj = document.getElementById("wetsuitSvg");
       if (!obj) return null;
@@ -211,7 +211,7 @@
           const selector = PARTS[part];
           const nodes  = svgDoc.querySelectorAll(selector);
 
-          // ✅ CSS보다 우선순위가 높은 style.fill 로 변경
+          // CSS fill보다 우선순위 높은 style.fill 사용
           nodes.forEach(el => {
             el.style.fill = color;
           });
@@ -219,12 +219,17 @@
       });
     }
 
-    // 페이지 로드 + SVG 로드 모두 대비
+    // 페이지/ SVG 로드 후 모두 대비
     window.addEventListener("load", () => {
       const obj = document.getElementById("wetsuitSvg");
 
-      initSvgInteraction();              // 이미 로드되었을 수도 있으니 한 번 시도
-      if (obj) obj.addEventListener("load", initSvgInteraction); // 아직이면 로드 후 다시
+      // 혹시 이미 로드되어 있으면 시도
+      initSvgInteraction();
+
+      // 아직이면 load 이벤트 때 다시 시도
+      if (obj) {
+        obj.addEventListener("load", initSvgInteraction);
+      }
     });
   </script>
 </body>
