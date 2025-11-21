@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>웻수트 컬러 시뮬레이션</title>
+  <title>기성 디그니티 후드 투피스 - 컬러 시뮬레이션</title>
 
   <style>
     body {
@@ -99,16 +99,17 @@
 
 <body>
   <div class="wrap">
-    <h1>컬러 시뮬레이션 (4색 전용)</h1>
+    <h1>기성 디그니티 후드 투피스 - 컬러 시뮬레이션 (4색 전용)</h1>
     <div class="subtitle">블랙 / 진그레이 / 메탈 / 연블루</div>
 
     <div class="layout">
+      <!-- 도식화 SVG -->
       <div class="viewer">
         <object id="wetsuitSvg" type="image/svg+xml" data="wetsuit.svg"></object>
       </div>
 
+      <!-- 색상 컨트롤 -->
       <div class="controls">
-
         <div class="group">
           <div class="group-title">상의 메인 (.st7)</div>
           <div class="color-row" id="topMain"></div>
@@ -144,92 +145,87 @@
           <div class="color-row" id="bottomMain"></div>
         </div>
 
+        <div class="footer">© Custom wetsuit color simulator</div>
       </div>
     </div>
   </div>
 
-<script>
-  // 4가지 색상
-  const COLORS = [
-    { name: "블랙",    code: "#000000" },
-    { name: "진그레이", code: "#333333" },
-    { name: "메탈",    code: "#8e8e8e" },
-    { name: "연블루",   code: "#87a6d8" }
-  ];
+  <script>
+    // 4가지 색상
+    const COLORS = [
+      { name: "블랙",    code: "#000000" },
+      { name: "진그레이", code: "#333333" },
+      { name: "메탈",    code: "#8e8e8e" },
+      { name: "연블루",   code: "#87a6d8" }
+    ];
 
-  // 부위와 SVG 클래스 매핑
-  const PARTS = {
-    topMain:   ".st7",   // 상의 메인 (파란색)
-    topSub:    ".st8",   // 상의 서브 (주황)
-    connector: ".st9",   // 상·하 연결 (보라)
-    arm:       ".st6",   // 팔 (빨강)
-    armBand:   ".st10",  // 팔 완장 (분홍)
-    hood:      ".st12",  // 후드 (노랑)
-    bottomMain: ".st5"   // 하의 메인 (초록)
-  };
+    // 부위와 SVG 클래스 매핑
+    const PARTS = {
+      topMain:    ".st7",   // 상의 메인 (파란색)
+      topSub:     ".st8",   // 상의 서브 (주황)
+      connector:  ".st9",   // 상·하 연결 (보라)
+      arm:        ".st6",   // 팔 (빨강)
+      armBand:    ".st10",  // 팔 완장 (분홍)
+      hood:       ".st12",  // 후드 (노랑)
+      bottomMain: ".st5"    // 하의 메인 (초록)
+    };
 
-  // 버튼 UI 자동 생성
-  function makeButtons(partId) {
-    const wrap = document.getElementById(partId);
-    COLORS.forEach(c => {
-      const btn = document.createElement("button");
-      btn.className = "color-btn";
-      btn.dataset.target = partId;
-      btn.dataset.color = c.code;
-      btn.innerHTML =
-        `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
-      wrap.appendChild(btn);
-    });
-  }
-
-  Object.keys(PARTS).forEach(id => makeButtons(id));
-
-  // SVG 문서 가져오기
-  function getSvgDoc() {
-    const obj = document.getElementById("wetsuitSvg");
-    if (!obj) return null;
-    if (obj.contentDocument) return obj.contentDocument;
-    if (obj.getSVGDocument) return obj.getSVGDocument();  // ← 여기!! 함수 호출
-    return null;
-  }
-
-  function initSvgInteraction() {
-    const svgDoc = getSvgDoc();
-    if (!svgDoc) {
-      console.warn("SVG 문서를 아직 못 찾았어요.");
-      return;
-    }
-
-    const buttons = document.querySelectorAll(".color-btn");
-
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const part = btn.dataset.target;
-        const color = btn.dataset.color;
-        const selector = PARTS[part];
-        const nodes = svgDoc.querySelectorAll(selector);
-
-        nodes.forEach(el => el.setAttribute("fill", color));
+    // 버튼 UI 자동 생성
+    function makeButtons(partId) {
+      const wrap = document.getElementById(partId);
+      COLORS.forEach(c => {
+        const btn = document.createElement("button");
+        btn.className = "color-btn";
+        btn.dataset.target = partId;
+        btn.dataset.color = c.code;
+        btn.innerHTML =
+          `<span class="color-swatch" style="background:${c.code}"></span>${c.name}`;
+        wrap.appendChild(btn);
       });
-    });
-  }
-
-  // 페이지 로드 후 / SVG 로드 후 둘 다 대비
-  window.addEventListener("load", () => {
-    const obj = document.getElementById("wetsuitSvg");
-
-    // 혹시 이미 로드가 끝났으면 바로 시도
-    initSvgInteraction();
-
-    // 아직이면 load 이벤트에서 다시 시도
-    if (obj) {
-      obj.addEventListener("load", initSvgInteraction);
     }
-  });
-</script>
 
+    Object.keys(PARTS).forEach(id => makeButtons(id));
 
+    // SVG 문서 가져오기
+    function getSvgDoc() {
+      const obj = document.getElementById("wetsuitSvg");
+      if (!obj) return null;
+      if (obj.contentDocument) return obj.contentDocument;
+      if (obj.getSVGDocument) return obj.getSVGDocument();
+      return null;
+    }
 
+    function initSvgInteraction() {
+      const svgDoc = getSvgDoc();
+      if (!svgDoc) {
+        console.warn("SVG 문서를 아직 못 찾았어요.");
+        return;
+      }
+
+      const buttons = document.querySelectorAll(".color-btn");
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const part   = btn.dataset.target;
+          const color  = btn.dataset.color;
+          const selector = PARTS[part];
+          const nodes  = svgDoc.querySelectorAll(selector);
+
+          // ✅ CSS보다 우선순위가 높은 style.fill 로 변경
+          nodes.forEach(el => {
+            el.style.fill = color;
+          });
+        });
+      });
+    }
+
+    // 페이지 로드 + SVG 로드 모두 대비
+    window.addEventListener("load", () => {
+      const obj = document.getElementById("wetsuitSvg");
+
+      initSvgInteraction();              // 이미 로드되었을 수도 있으니 한 번 시도
+      if (obj) obj.addEventListener("load", initSvgInteraction); // 아직이면 로드 후 다시
+    });
+  </script>
 </body>
 </html>
-<object id="wetsuitSvg" type="image/svg+xml" data="wetsuit.svg"></object>
